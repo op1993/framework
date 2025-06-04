@@ -24,14 +24,14 @@ public class BookApi extends BaseApiConfig {
                 .post(PATH), Book.class);
     }
 
-    public ResponseWrapper<Book> getBook(int bookId) {
+    public ResponseWrapper<Book> getBook(long bookId) {
         return ResponseWrapper.of(getClient()
                 .contentType(ContentType.JSON)
                 .pathParam("id", bookId)
                 .get(PATH + "/{id}"), Book.class);
     }
 
-    public ResponseWrapper<Book> updateBook(int bookId, Book book) {
+    public ResponseWrapper<Book> updateBook(long bookId, Book book) {
         return ResponseWrapper.of(getClient()
                 .contentType(ContentType.JSON)
                 .pathParam("id", bookId)
@@ -40,7 +40,7 @@ public class BookApi extends BaseApiConfig {
     }
 
 
-    public ResponseWrapper<Void> deleteBook(int bookId) {
+    public ResponseWrapper<Void> deleteBook(long bookId) {
         return ResponseWrapper.of(getClient()
                 .contentType(ContentType.JSON)
                 .pathParam("id", bookId)

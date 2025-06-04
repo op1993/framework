@@ -1,23 +1,78 @@
 plugins {
     id 'java'
+    id 'io.qameta.allure' version '2.12.0'
 }
-
-group = 'org.example'
-version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
+ext {
+    junitVersion = '5.10.0'
+    restAssuredVersion = '5.5.5'
+    allureVersion = '2.29.1'
+    lombokVersion = '1.18.38'
+    jacksonVersion = '2.19.0'
+    assertjVersion = '4.0.0-M1'
+    commonsLangVersion = '3.17.0'
+    testngVersion = '7.11.0'
+    aspectjVersion = '1.9.24'
+}
+
+configurations {
+    agent {
+        canBeConsumed = true
+        canBeResolved = true
+    }
+}
+
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    implementation 'io.rest-assured:rest-assured:5.5.5'
-    implementation 'io.qameta.allure:allure-testng:2.29.1'
-    implementation 'org.projectlombok:lombok:1.18.38'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.19.0'
+    testImplementation "org.testng:testng:${testngVersion}"
+
+    implementation "io.rest-assured:rest-assured:${restAssuredVersion}"
+    implementation "io.rest-assured:json-schema-validator:${restAssuredVersion}"
+
+    implementation "io.qameta.allure:allure-testng:${allureVersion}"
+    implementation "io.qameta.allure:allure-rest-assured:${allureVersion}"
+
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}"
+
+    implementation "org.assertj:assertj-core:${assertjVersion}"
+    implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+
+    agent "org.aspectj:aspectjweaver:${aspectjVersion}"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
+}
+
+compileJava {
+    options.compilerArgs += ['-parameters']
 }
 
 test {
-    useJUnitPlatform()
+    useTestNG()
+    jvmArgs = [
+            "-javaagent:${configurations.agent.singleFile}"
+    ]
+
+
+}
+
+allure {
+    adapter {
+        aspectjWeaver.set(true)
+        frameworks {
+            testng {
+                adapterVersion.set(allureVersion)
+            }
+        }
+    }
 }
