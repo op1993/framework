@@ -28,6 +28,10 @@ public class BookApiActions {
         return bookApi.getBook(id).get();
     }
 
+    public Book getBook(Book book) {
+        return bookApi.getBook(book.getId()).get();
+    }
+
     @Step("Update book by id: {id}")
     public Book updateBook(long bookId, Book book) {
         return bookApi.updateBook(bookId, book).get();
