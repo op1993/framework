@@ -17,6 +17,7 @@ ext {
     commonsLangVersion = '3.17.0'
     testngVersion = '7.11.0'
     aspectjVersion = '1.9.24'
+    log4j = '3.0.0-beta2'
 }
 
 configurations {
@@ -45,6 +46,9 @@ dependencies {
     implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 
     agent "org.aspectj:aspectjweaver:${aspectjVersion}"
+
+    implementation "org.apache.logging.log4j:log4j-core:${log4j}"
+    implementation "org.apache.logging.log4j:log4j-api:${log4j}"
 }
 
 java {
@@ -58,7 +62,9 @@ compileJava {
 }
 
 test {
-    useTestNG()
+    useTestNG(){
+        suites 'src/test/resources/testng.xml'
+    }
     jvmArgs = [
             "-javaagent:${configurations.agent.singleFile}"
     ]

@@ -1,15 +1,16 @@
-package org.api;
+package org.api.book;
 
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import org.api.action.BookApiActions;
 import org.api.model.Book;
 import org.api.model.ErrorModel;
 import org.assertj.core.api.Assertions;
-import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-@Listeners({io.qameta.allure.testng.AllureTestNg.class})
 public class BookTests {
 
+    @Severity(value = SeverityLevel.MINOR)
     @Test
     public void getNotExistingBook() {
         var expectedResponse = new ErrorModel()
@@ -28,6 +29,7 @@ public class BookTests {
                 .isEqualTo(expectedResponse);
     }
 
+    @Severity(value = SeverityLevel.MINOR)
     @Test
     public void deleteExistingBook() {
         BookApiActions bookApiActions = new BookApiActions();
@@ -35,7 +37,6 @@ public class BookTests {
                 .setDescription("some description")
                 .setTitle("BOOK"));
 
-        System.out.println(book);
         bookApiActions.getBookApi()
                 .deleteBook(book.getId())
                 .then()

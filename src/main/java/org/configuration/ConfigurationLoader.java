@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import org.configuration.model.AutomationConfig;
 
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.stream.Stream;
 
+@Log4j2
 public class ConfigurationLoader {
 
     @Getter
@@ -22,6 +24,7 @@ public class ConfigurationLoader {
     }
 
     private static AutomationConfig loadConfig() {
+        log.info("Loading configuration started");
         ObjectMapper objectMapperYaml = JsonMapper.builder(
                         new YAMLFactory())
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
@@ -35,13 +38,16 @@ public class ConfigurationLoader {
             }
             AutomationConfig automationConfiguration = objectMapperYaml.readValue(configurationFile, AutomationConfig.class);
             overrideWithSystemProperties(automationConfiguration, "");
+            log.info("Loading configuration finished");
             return automationConfiguration;
         } catch (IOException e) {
+            log.error("Unable to load configuration", e);
             throw new RuntimeException("Unable to load configuration", e);
         }
     }
 
     public static void overrideWithSystemProperties(Object obj, String prefix) {
+        log.debug("Updating configuration according to system properties");
         if (obj == null) return;
 
         for (Field field : obj.getClass().getDeclaredFields()) {
@@ -76,6 +82,7 @@ public class ConfigurationLoader {
                 }
 
             } catch (Exception e) {
+                log.error("Unexpected error while overriding property userId={}, error={}", key, e.getMessage());
                 throw new RuntimeException("Failed to override property: " + key, e);
             }
         }
