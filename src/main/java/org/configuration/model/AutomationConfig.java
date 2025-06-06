@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class AutomationConfig {
 
-    private String baseApi;
+    private ApplicationConfiguration application;
+    private ExecutionConfiguration execution;
 
 }

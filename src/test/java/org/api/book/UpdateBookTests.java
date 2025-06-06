@@ -1,5 +1,6 @@
 package org.api.book;
 
+import io.qameta.allure.Description;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
@@ -11,11 +12,12 @@ import org.utils.ObjectUtils;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Story("Update Book")
 public class UpdateBookTests extends BaseApiTest {
 
-    @Test(groups = {"smoke"})
+    @Test(groups = {"smoke"}, description = "Update already existing book")
     @Severity(SeverityLevel.CRITICAL)
     public void updateBook() {
         Book originalBook = bookApiActions.createBook(Book.createValidBookDTO()
@@ -210,6 +212,46 @@ public class UpdateBookTests extends BaseApiTest {
                         .setTitle("A" .repeat(100001)))
                 .then()
                 .validateStatusCode(400);
+    }
+
+    @Severity(SeverityLevel.NORMAL)
+    @Test(groups = {"regression"})
+    public void updateBookIsIdempotent() {
+        Book originalBook = bookApiActions.createBook(Book.createValidBookDTO());
+        addBookToCleanup(originalBook);
+
+        Book updateData = Book.createValidBookDTO();
+
+        Book firstUpdate = bookApiActions.updateBook(originalBook.getId(), updateData);
+
+        Book secondUpdate = bookApiActions.updateBook(originalBook.getId(), updateData);
+
+        Assertions.assertThat(firstUpdate)
+                .usingRecursiveComparison()
+                .isEqualTo(secondUpdate);
+    }
+
+    @Severity(SeverityLevel.CRITICAL)
+    @Test(groups = {"regression"})
+    public void concurrentUpdateOfSameBook() {
+        Book book = bookApiActions.createBook(Book.createValidBookDTO());
+        addBookToCleanup(book);
+
+        Book update1 = Book.createValidBookDTO().setTitle("Update1");
+        Book update2 = Book.createValidBookDTO().setTitle("Update2");
+
+        CompletableFuture<Book> future1 = CompletableFuture.supplyAsync(() ->
+                bookApiActions.updateBook(book.getId(), update1)
+        );
+        CompletableFuture<Book> future2 = CompletableFuture.supplyAsync(() ->
+                bookApiActions.updateBook(book.getId(), update2)
+        );
+
+        Book result1 = future1.join();
+        Book result2 = future2.join();
+        Book finalBook = bookApiActions.getBook(book.getId());
+        Assertions.assertThat(finalBook.getTitle())
+                .isIn(result1.getTitle(), result2.getTitle());
     }
 
 }

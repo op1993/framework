@@ -34,7 +34,7 @@ public abstract class BaseApiConfig {
                             );
                             return objectMapper;
                         })))
-                .baseUri(ConfigurationLoader.getAutomationConfiguration().getBaseApi())
+                .baseUri(ConfigurationLoader.getAutomationConfiguration().getApplication().getBaseApi())
                 .filter(new ThreadLoggingFilter())
                 .filter(new RestAssuredAllureFilter()
                         .setResponseAttachmentName("Response"));
@@ -79,7 +79,7 @@ public abstract class BaseApiConfig {
                     .append("\tResponse Code : ").append(response.getStatusCode()).append(" ").append("\n")
                     .append("\tExec Time     : ").append(response.getTime()).append(" ms").append("\n")
                     .append("\tResponse Body : ").append(updateBodyTextIfEmpty.apply(responseBody));
-            log.debug("\n{}", logBuilder);
+            log.info("\n{}", logBuilder);
             return response;
         }
     }

@@ -66,6 +66,14 @@ public class ResponseWrapper<T> {
         return new ResponseValidation(this.response, this.contractSchemaPath);
     }
 
+    public long getExecutionTime(){
+        return response.getTime();
+    }
+
+    public long getStatusCode(){
+        return response.getStatusCode();
+    }
+
 
 
 }

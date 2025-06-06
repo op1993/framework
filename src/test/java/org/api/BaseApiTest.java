@@ -7,6 +7,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Log4j2
@@ -16,13 +17,13 @@ public class BaseApiTest {
 
     private List<Long> booksForCleanup;
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true)
     public void setUp() {
         bookApiActions = new BookApiActions();
-        booksForCleanup = new ArrayList<>();
+        booksForCleanup = Collections.synchronizedList(new ArrayList<>());
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void cleanup() {
         booksForCleanup.forEach(id -> {
             bookApiActions.getBookApi().deleteBook(id);

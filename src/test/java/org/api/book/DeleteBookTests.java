@@ -44,6 +44,22 @@ public class DeleteBookTests extends BaseApiTest {
                 .isEqualTo(expectedResponse);
     }
 
+    @Severity(SeverityLevel.NORMAL)
+    @Test(groups = {"regression"})
+    public void deleteBookIsIdempotent() {
+        Book book = bookApiActions.createBook(Book.createValidBookDTO());
+
+        bookApiActions.getBookApi()
+                .deleteBook(book.getId())
+                .then()
+                .validateStatusCode(200);
+
+        bookApiActions.getBookApi()
+                .deleteBook(book.getId())
+                .then()
+                .validateStatusCode(404);
+    }
+
 
 
 

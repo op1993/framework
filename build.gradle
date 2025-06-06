@@ -53,7 +53,7 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -64,6 +64,18 @@ compileJava {
 test {
     useTestNG(){
         suites 'src/test/resources/testng.xml'
+        if (System.getProperty('threadCount')) {
+            setThreadCount(Integer.parseInt(System.getProperty('threadCount')))
+        }
+        def groups = System.getProperty('groups')
+        if (groups) {
+            includeGroups groups
+        }
+
+        def excludedGroups = System.getProperty('excludedGroups')
+        if (excludedGroups) {
+            excludeGroups excludedGroups
+        }
     }
     jvmArgs = [
             "-javaagent:${configurations.agent.singleFile}"

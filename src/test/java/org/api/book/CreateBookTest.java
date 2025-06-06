@@ -4,6 +4,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
+import org.annotations.NonRetryable;
 import org.api.BaseApiTest;
 import org.api.model.Book;
 import org.assertj.core.api.Assertions;
@@ -11,6 +12,8 @@ import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.IntStream;
 
 @Story("Create Book")
 public class CreateBookTest extends BaseApiTest {
@@ -131,8 +134,7 @@ public class CreateBookTest extends BaseApiTest {
     }
 
     @Test(groups = {"regression"})
-    @Severity(SeverityLevel.CRITICAL)
-    @Feature("Security")
+    @Severity(SeverityLevel.NORMAL)
     public void createNewBookWithoutRequiredParams() {
         Book bookToCreate1 = Book.createValidBookDTO()
                 .setPageCount(null)
@@ -143,5 +145,49 @@ public class CreateBookTest extends BaseApiTest {
                 .createBook(bookToCreate1).then()
                 .validateStatusCode(400);
         // todo validate error message
+    }
+
+    @Test(groups = {"regression"})
+    @Severity(SeverityLevel.NORMAL)
+    public void createBookWithLongDescription() {
+        String longTitle = "A" .repeat(10000);
+        Book book = Book.createValidBookDTO().setTitle(longTitle);
+
+        bookApiActions.getBookApi()
+                .createBook(book)
+                .then()
+                .validateStatusCode(400);
+    }
+
+    @Test(groups = {"regression"})
+    public void createBookWithZeroPageCount() {
+        Book book = Book.createValidBookDTO().setPageCount(0);
+
+        bookApiActions.getBookApi()
+                .createBook(book)
+                .then()
+                .validateStatusCode(400);
+    }
+
+
+    @NonRetryable(reason = "This is performance test, we want to see the real results")
+    @Test(groups = {"performance"})
+    public void concurrentBookCreationTest() {
+        int bookToCreate = 20;
+        List<CompletableFuture<Book>> futures = IntStream.range(0, bookToCreate)
+                .mapToObj(i -> CompletableFuture.supplyAsync(() ->
+                        bookApiActions.createBook(Book.createValidBookDTO())))
+                .toList();
+
+        List<Book> books = futures.stream()
+                .map(CompletableFuture::join)
+                .toList();
+
+        books.forEach(this::addBookToCleanup);
+
+        Assertions.assertThat(books).hasSize(bookToCreate);
+        Assertions.assertThat(books.stream().map(Book::getId).distinct().count())
+                .as("All books should have unique IDs")
+                .isEqualTo(bookToCreate);
     }
 }

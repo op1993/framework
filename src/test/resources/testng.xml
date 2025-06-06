@@ -2,11 +2,13 @@
 <suite name="MyTestSuite" verbose="1" parallel="methods" thread-count="5">
     <listeners>
         <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+        <listener class-name="org.listeners.AnnotationTransformer"/>
+        <listener class-name="org.listeners.RetryFailedConfigurationListener"/>
     </listeners>
 
     <test name="Api tests">
         <packages>
-            <package name="org.api"/>
+            <package name="org.api.*"/>
         </packages>
     </test>
 </suite>

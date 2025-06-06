@@ -3,13 +3,17 @@ package org.api.book;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
+import org.annotations.NonRetryable;
 import org.api.BaseApiTest;
+import org.api.ResponseWrapper;
 import org.api.model.Book;
 import org.api.model.ErrorModel;
 import org.assertj.core.api.Assertions;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.IntStream;
 
 @Story("Get Book")
 public class GetBookTests extends BaseApiTest {
@@ -77,6 +81,36 @@ public class GetBookTests extends BaseApiTest {
                 .as("Check that only 1 book matched criteria to book #1")
                 .hasSize(1);
         Assertions.assertThat(booksMatchedToBook1.getFirst().getId()).as("Assert that BE created ID for book 1").isNotNull();
+    }
 
+    @NonRetryable
+    @Test(groups = {"performance"})
+    @Severity(SeverityLevel.CRITICAL)
+    public void getAllBooksPerformanceTest() {
+        int bookToCreate = 200;
+        IntStream.range(0, bookToCreate).forEach(s -> {
+            addBookToCleanup(bookApiActions.createBook(Book.createValidBookDTO()));
+        });
+        int activeUsers = 20;
+
+        List<CompletableFuture<ResponseWrapper<List<Book>>>> futures = IntStream.range(0, activeUsers)
+                .mapToObj(i -> CompletableFuture.supplyAsync(() ->
+                        bookApiActions.getBookApi().getBooks()))
+                .toList();
+
+        List<ResponseWrapper<List<Book>>> responses = futures.stream()
+                .map(CompletableFuture::join)
+                .toList();
+        int maxResponseTimeMs = 3_000;
+        boolean allResponsesWithinLimit = responses.stream()
+                .map(ResponseWrapper::getExecutionTime)
+                .noneMatch(s -> s > maxResponseTimeMs);
+
+        long failedResponses = responses.stream()
+                .filter(s -> s.getStatusCode() < 200 || s.getStatusCode() >= 300)
+                .count();
+        Assertions.assertThat(allResponsesWithinLimit).as("all requests should be performed less then in %s ms".formatted(maxResponseTimeMs))
+                .isTrue();
+        Assertions.assertThat(failedResponses).as("all requests should be performed successfully").isEqualTo(0);
     }
 }

@@ -1,1 +1,4 @@
-baseApi: "https://fakerestapi.azurewebsites.net"
+execution:
+  retry: 2
+application:
+  baseApi: "https://fakerestapi.azurewebsites.net"
