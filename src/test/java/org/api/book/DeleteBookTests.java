@@ -1,14 +1,14 @@
 package org.api.book;
 
-import io.qameta.allure.Severity;
-import io.qameta.allure.SeverityLevel;
-import io.qameta.allure.Story;
+import io.qameta.allure.*;
 import org.api.BaseApiTest;
 import org.api.model.Book;
 import org.api.model.ErrorModel;
 import org.assertj.core.api.Assertions;
 import org.testng.annotations.Test;
 
+@Epic("Books API")
+@Feature("Books Management")
 @Story("Delete Book")
 public class DeleteBookTests extends BaseApiTest {
 

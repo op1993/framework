@@ -1,9 +1,6 @@
 package org.api.book;
 
-import io.qameta.allure.Description;
-import io.qameta.allure.Severity;
-import io.qameta.allure.SeverityLevel;
-import io.qameta.allure.Story;
+import io.qameta.allure.*;
 import org.api.BaseApiTest;
 import org.api.model.Book;
 import org.assertj.core.api.Assertions;
@@ -14,6 +11,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+@Epic("Books API")
+@Feature("Books Management")
 @Story("Update Book")
 public class UpdateBookTests extends BaseApiTest {
 
@@ -50,7 +49,7 @@ public class UpdateBookTests extends BaseApiTest {
                 .validateStatusCode(404);
     }
 
-    @Test(groups = {"regression"})
+    @Test(groups = {"regression", "security"})
     @Severity(SeverityLevel.CRITICAL)
     public void updateBookWithSqlInjection() {
         Book originalBook = bookApiActions.createBook(Book.createValidBookDTO());
@@ -107,7 +106,7 @@ public class UpdateBookTests extends BaseApiTest {
 
         Book updateBookDTO = ObjectUtils.deepCopy(originalBook)
                 .setId(null)
-                .setDescription("A" .repeat(10000));
+                .setDescription("A".repeat(10000));
 
         // todo discuss what is the limit
         var updatedBook = bookApiActions.updateBook(originalBook.getId(), updateBookDTO);
@@ -127,7 +126,7 @@ public class UpdateBookTests extends BaseApiTest {
         // todo discuss what is the limit
         bookApiActions.getBookApi()
                 .updateBook(originalBook.getId(), ObjectUtils.deepCopy(originalBook)
-                        .setDescription("A" .repeat(100001)))
+                        .setDescription("A".repeat(100001)))
                 .then()
                 .validateStatusCode(400);
         // todo check error object
@@ -189,7 +188,7 @@ public class UpdateBookTests extends BaseApiTest {
         // todo discuss what is the limit
         Book updateBookDTO = ObjectUtils.deepCopy(originalBook)
                 .setId(null)
-                .setTitle("A" .repeat(10000));
+                .setTitle("A".repeat(10000));
 
 
         var updatedBook = bookApiActions.updateBook(originalBook.getId(), updateBookDTO);
@@ -209,7 +208,7 @@ public class UpdateBookTests extends BaseApiTest {
         // todo discuss what is the limit
         bookApiActions.getBookApi()
                 .updateBook(originalBook.getId(), ObjectUtils.deepCopy(originalBook)
-                        .setTitle("A" .repeat(100001)))
+                        .setTitle("A".repeat(100001)))
                 .then()
                 .validateStatusCode(400);
     }

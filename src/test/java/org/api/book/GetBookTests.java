@@ -1,8 +1,6 @@
 package org.api.book;
 
-import io.qameta.allure.Severity;
-import io.qameta.allure.SeverityLevel;
-import io.qameta.allure.Story;
+import io.qameta.allure.*;
 import org.annotations.NonRetryable;
 import org.api.BaseApiTest;
 import org.api.ResponseWrapper;
@@ -15,6 +13,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
+@Epic("Books API")
+@Feature("Books Management")
 @Story("Get Book")
 public class GetBookTests extends BaseApiTest {
 

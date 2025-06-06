@@ -1,9 +1,6 @@
 package org.api.book;
 
-import io.qameta.allure.Feature;
-import io.qameta.allure.Severity;
-import io.qameta.allure.SeverityLevel;
-import io.qameta.allure.Story;
+import io.qameta.allure.*;
 import org.annotations.NonRetryable;
 import org.api.BaseApiTest;
 import org.api.model.Book;
@@ -15,8 +12,10 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
+@Epic("Books API")
+@Feature("Books Management")
 @Story("Create Book")
-public class CreateBookTest extends BaseApiTest {
+public class CreateBookTests extends BaseApiTest {
 
     @Test(groups = {"smoke"})
     @Severity(SeverityLevel.CRITICAL)
@@ -92,9 +91,8 @@ public class CreateBookTest extends BaseApiTest {
 
     }
 
-    @Test(groups = {"regression"})
+    @Test(groups = {"regression", "security"})
     @Severity(SeverityLevel.CRITICAL)
-    @Feature("Security")
     public void createNewBookWithSQLInjection() {
         Book bookToCreate1 = Book.createValidBookDTO();
         // todo get information about table name and DB. Let's assume it's oracle/postgress
@@ -117,9 +115,8 @@ public class CreateBookTest extends BaseApiTest {
     }
 
     @Ignore
-    @Test(groups = {"regression"})
+    @Test(groups = {"regression", "security"})
     @Severity(SeverityLevel.CRITICAL)
-    @Feature("Security")
     public void createNewBookWithXSSScript() {
         Book bookToCreate1 = Book.createValidBookDTO();
         // todo get information about table name and DB. Let's assume it's oracle/postgress
