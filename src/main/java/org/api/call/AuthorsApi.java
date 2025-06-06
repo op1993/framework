@@ -10,7 +10,7 @@ import java.util.List;
 
 public class AuthorsApi extends BaseApiConfig {
 
-    private static final String PATH = "/api/v1//api/v1/Authors";
+    private static final String PATH = "/api/v1/Authors";
 
     public ResponseWrapper<List<Author>> getAuthors() {
         return ResponseWrapper.of(getClient().get(PATH), new TypeRef<>() {
